@@ -1,6 +1,8 @@
 import os
 import gradio as gr
 import socket
+import shutil
+from datetime import datetime
 
 def get_available_items(root, valid_extensions=[], directory_only=False) -> list:
     '''
@@ -18,6 +20,52 @@ def get_available_items(root, valid_extensions=[], directory_only=False) -> list
                          (not valid_extensions or os.path.splitext(item)[1] in valid_extensions)]
     
     return list_of_items
+
+def move_existing_folder(root_source, source_name, root_destination):
+    '''
+    Moves an existing folder from the source location to the destination directory, renaming
+    the folder based on time
+    
+    GRADIO INTENDED - Parameters should be gradio objects.
+    root_source and root_destination can be hidden textboxes.
+    source_name is usually a dropdown menu.
+    
+    This function verifies that the source folder exists and is a directory. 
+    It ensures that the destination directory exists, creating it if necessary. 
+    The function appends a timestamp (in the format YYYYMMDD_HHMMSS) to the 
+    folder's name in the destination directory to avoid name collisions.
+
+    
+    Example:
+    move_existing_folder("/path/to/source_folder", "/path/to/destination_directory")
+    
+    Gradio Example:
+    move_existing_folder_button.click(fn=move_existing_folder,
+                                    inputs=[
+                                        hidden_textbox_object,
+                                        dropdown_object, 
+                                        hidden_textbox_object
+                                        ]
+    )
+    '''
+    folder_name = os.path.basename(os.path.normpath(source_name))
+    source_path = os.path.join(root_source, folder_name)
+    
+    if not os.path.exists(source_path):
+        raise gr.Error("Source folder does not exist")
+        
+    if not os.path.isdir(source_path):
+        raise gr.Error("Source is not a folder")
+
+    if not os.path.exists(root_destination):
+        os.makedirs(root_destination)
+    
+    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+    destination_folder_path = os.path.join(root_destination, f"{folder_name}_{timestamp}")
+    
+    shutil.move(source_path, destination_folder_path)
+    
+    gr.Info(f"Folder moved to {destination_folder_path}")
 
 def refresh_dropdown_proxy(*args):
     
