@@ -3,6 +3,9 @@ import gradio as gr
 import socket
 import shutil
 from datetime import datetime
+import time
+import subprocess
+import webbrowser
 
 def get_available_items(root, valid_extensions=[], directory_only=False) -> list:
     '''
@@ -125,3 +128,21 @@ def get_port_available(start_port=7860, end_port=7865):
                 webui_port = i
                 break
     return webui_port
+
+def is_port_in_use(port):
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+        return sock.connect_ex(('localhost', port)) == 0
+    
+def launch_tensorboard_proxy():
+    '''
+    Requires there to be a launch_tensorboard.bat file, check styletts2 or beatrice webuis for reference
+    '''
+    port = 6006
+
+    if is_port_in_use(port):
+        gr.Warning(f"Port {port} is already in use. Skipping TensorBoard launch.")
+    else:
+        subprocess.Popen(["launch_tensorboard.bat"], shell=True)
+        time.sleep(1)
+
+    webbrowser.open(f"http://localhost:{port}")
