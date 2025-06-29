@@ -78,6 +78,9 @@ def refresh_dropdown_proxy(*args):
     The input follows the parameters of get_available_items and the outputs should be specified in the order of gradio elements you want to update in
     
     For example:
+    hidden_textbox_ROOT_1 = gr.Textbox("voices", visible=False)
+    hidden_textbox_VALID_EXTENSIONS_1 = gr.Textbox("[.wav, .mp3, .flac, .m4a]", visible=False)
+    hidden_textbox_DIRECTORY_ONLY_1 = gr.Textbox("files", visible=False)
     
     some_gradio_button.click(fn=refresh_dropdown_proxy,
                             inputs=[
